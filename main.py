@@ -9,6 +9,8 @@ bot = telebot.TeleBot(API)
 
 #Погода
 
+# TODO: сделать погоду на любой запрос (не только на команду)
+
 @bot.message_handler(commands=['Погода'])
 def weather(message):
     city = 'Moscow'
@@ -32,7 +34,14 @@ def main(message):
         bot.send_message(message.chat.id, 'Пидора ответ')
     elif message.text.strip().lower() == 'да':
         bot.reply_to(message, 'Пизда')
-    # elif message.text
+    elif message.text == 'обратись к чат-гпт':
+        response = bot.send_message('ChatGPT_ForTelegramBot', message.text)
+        chat_id = response.chat.id
+        message_id = response.message_id
+        answer = bot.get_chat_messages(chat_id, message_id).text
+
+        bot.send_message(message.chat.id, answer)
+        
 
 
 bot.polling(none_stop=True)
