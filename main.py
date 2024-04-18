@@ -51,24 +51,30 @@ def weather(message):
 
 # Ругающийся бот
 
-@bot.message_handler(content_types='text')
-def main(message):
-    """
-    Функция для работы с текстом
-    """
-    global name_DL
-    text_user = message.text.strip().lower()
+# @bot.message_handler(content_types='text')
+# def main(message):
+#     """
+#     Функция для работы с текстом
+#     """
+#     global name_DL
+#     text_user = message.text.strip().lower()
 
-    if text_user in no_word:
-        bot.send_message(message.chat.id, 'Программиста ответ')
-    elif text_user in yes_word:
-        bot.reply_to(message, random.choice(non_swear_yes))
-    elif 'дл' in text_user:
-        name_DL = text_user.replace('дл', '')
-        if name_DL == '':
-            bot.send_message(message.chat.id, 'Вы не ввели номер ДЛ')
-        else:
-            bot.send_message(message.chat.id, 'Номер ДЛ успешно зарегестрирован')
+#     if text_user in no_word:
+#         bot.send_message(message.chat.id, 'Программиста ответ')
+#     elif text_user in yes_word:
+#         bot.reply_to(message, random.choice(non_swear_yes))
+    # elif 'дл' in text_user:
+    #     name_DL = text_user.replace('дл', '')
+    #     name_DL = name_DL.replace(' ', '')
+    #     try:
+    #         int(name_DL)
+    #     except ValueError:
+    #         bot.send_message(message.chat.id, 'Вы ввели невалидный номер ДЛ')
+        
+    #     if name_DL == '':
+    #         bot.send_message(message.chat.id, 'Вы не ввели номер ДЛ')
+    #     else:
+    #         bot.send_message(message.chat.id, f'Номер ДЛ {name_DL} успешно зарегестрирован')
     # elif message.text == 'обратись к чат-гпт':
     #     response = bot.send_message('ChatGPT_ForTelegramBot', message.text)
     #     chat_id = response.chat.id
@@ -77,13 +83,31 @@ def main(message):
 
     #     bot.send_message(message.chat.id, answer)
 
+@bot.message_handler(func=lambda message: 'дл' in message.text.strip().lower())
+def handle_message(message):
+    """
+    Функция для обработки 'дл'
+    """
+    global name_DL
+    # Извлекаем номер ДЛ из сообщения
+    name_DL = message.text.strip().lower().replace('дл', '')
+    name_DL = name_DL.replace(' ', '')
+
+    # Проверяем, содержит ли номер ДЛ только цифры
+    if not name_DL.isdigit():
+        bot.send_message(message.chat.id, 'Вы ввели невалидный номер ДЛ')
+        return
+
+    # Регистрируем номер ДЛ и отправляем подтверждение
+    bot.send_message(message.chat.id, f'Номер ДЛ {name_DL} успешно зарегистрирован')
+
 
 @bot.message_handler(content_types=['document'])
 def handle_document(message):
     """
     Функция для выгрузки файла
     """
-    global main_path
+    global main_path, name_DL
 
     file_info = bot.get_file(message.document.file_id)
     file_name = message.document.file_name
@@ -98,6 +122,11 @@ def handle_document(message):
     else:
         os.mkdir(date_string)
         os.chdir(date_string)
+    
+    if not os.path.exists(name_DL):
+        os.makedirs(name_DL)
+
+    os.chdir(name_DL)
 
     with open(f'{date_string}-{file_name}', "wb") as f:
         f.write(downloaded_file)
