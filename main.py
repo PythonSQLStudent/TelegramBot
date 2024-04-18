@@ -18,7 +18,6 @@ name_DL = ''
 
 # TODO: сделать погоду на любой запрос (не только на команду)
 
-
 @bot.message_handler(commands=['Погода'])
 def weather(message):
     city = 'Moscow'
@@ -81,8 +80,13 @@ def handle_message(message):
         bot.send_message(message.chat.id, 'Вы ввели невалидный номер ДЛ')
         return
 
-    # Регистрируем номер ДЛ и отправляем подтверждение
-    bot.send_message(message.chat.id, f'Номер ДЛ {name_DL} успешно зарегистрирован')
+    # Регистрируем номер ДЛ и отправляем кнопки   
+    markup = types.InlineKeyboardMarkup()
+    button_1 = types.InlineKeyboardButton('Удорожание по факту поставки', callback_data='some')
+    button_2 = types.InlineKeyboardButton('Удорожание по факту стоимости', callback_data='some2')
+    markup.row(button_1)
+    markup.row(button_2)
+    bot.reply_to(message, f'Номер ДЛ {name_DL} успешно зарегистрирован. Выберите опцию:', reply_markup=markup)
 
 
 @bot.message_handler(content_types=['document'])
