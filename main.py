@@ -18,24 +18,6 @@ name_DL = ''
 
 # TODO: сделать погоду на любой запрос (не только на команду)
 
-# @bot.message_handler(commands=['work'])
-# def main(message):
-#     """
-#     Основная функция рабочего бота
-#     """
-#     # Создаем кнопки для выбора
-#     markup = types.InlineKeyboardMarkup()
-#     button1 = types.InlineKeyboardButton('Укажите номер договора', callback_data='naming')
-#     markup.row(button1)
-#     bot.send_message(message.chat.id, reply_markup=markup)
-
-
-# @bot.callback_query_handler(func=lambda callback:True)
-# def callback_message(callback):
-#     global name_DL
-#     if callback.data == 'naming':
-#         name_DL
-
 
 @bot.message_handler(commands=['Погода'])
 def weather(message):
@@ -49,7 +31,7 @@ def weather(message):
     else:
         bot.reply_to(message, 'Город не найден')
 
-# Ругающийся бот
+# Отвечающий бот
 
 # @bot.message_handler(content_types='text')
 # def main(message):
@@ -89,11 +71,12 @@ def handle_message(message):
     Функция для обработки 'дл'
     """
     global name_DL
+
     # Извлекаем номер ДЛ из сообщения
     name_DL = message.text.strip().lower().replace('дл', '')
     name_DL = name_DL.replace(' ', '')
 
-    # Проверяем, содержит ли номер ДЛ только цифры
+    # Проверяем, содержит ли номер ДЛ только цифры/empty str
     if not name_DL.isdigit():
         bot.send_message(message.chat.id, 'Вы ввели невалидный номер ДЛ')
         return
