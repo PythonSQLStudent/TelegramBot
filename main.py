@@ -5,15 +5,37 @@ import os
 import json
 
 from datetime import datetime as dt
-from configuration import API, non_swear_yes, API_weather
+from telebot import types
+from configuration import API, non_swear_yes, API_weather, yes_word, no_word
 
 
 bot = telebot.TeleBot(API)
+
 main_path = os.getcwd()
+name_DL = ''
 
 #Погода
 
 # TODO: сделать погоду на любой запрос (не только на команду)
+
+# @bot.message_handler(commands=['work'])
+# def main(message):
+#     """
+#     Основная функция рабочего бота
+#     """
+#     # Создаем кнопки для выбора
+#     markup = types.InlineKeyboardMarkup()
+#     button1 = types.InlineKeyboardButton('Укажите номер договора', callback_data='naming')
+#     markup.row(button1)
+#     bot.send_message(message.chat.id, reply_markup=markup)
+
+
+# @bot.callback_query_handler(func=lambda callback:True)
+# def callback_message(callback):
+#     global name_DL
+#     if callback.data == 'naming':
+#         name_DL
+
 
 @bot.message_handler(commands=['Погода'])
 def weather(message):
@@ -32,12 +54,21 @@ def weather(message):
 @bot.message_handler(content_types='text')
 def main(message):
     """
-    Функция для ответа и подсчета ответов на "да" и "нет"
+    Функция для работы с текстом
     """
-    if message.text.strip().lower() == 'нет' or 'ytn':
+    global name_DL
+    text_user = message.text.strip().lower()
+
+    if text_user in no_word:
         bot.send_message(message.chat.id, 'Программиста ответ')
-    elif message.text.strip().lower() == 'да' or 'lf':
+    elif text_user in yes_word:
         bot.reply_to(message, random.choice(non_swear_yes))
+    elif 'дл' in text_user:
+        name_DL = text_user.replace('дл', '')
+        if name_DL == '':
+            bot.send_message(message.chat.id, 'Вы не ввели номер ДЛ')
+        else:
+            bot.send_message(message.chat.id, 'Номер ДЛ успешно зарегестрирован')
     # elif message.text == 'обратись к чат-гпт':
     #     response = bot.send_message('ChatGPT_ForTelegramBot', message.text)
     #     chat_id = response.chat.id
@@ -45,6 +76,7 @@ def main(message):
     #     answer = bot.get_chat_messages(chat_id, message_id).text
 
     #     bot.send_message(message.chat.id, answer)
+
 
 @bot.message_handler(content_types=['document'])
 def handle_document(message):
@@ -74,6 +106,7 @@ def handle_document(message):
 
     # Отправляем сообщение пользователю
     bot.send_message(message.chat.id, "Файл загружен")
-        
+
+
 
 bot.polling(none_stop=True)
