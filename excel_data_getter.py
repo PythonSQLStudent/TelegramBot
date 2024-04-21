@@ -10,6 +10,7 @@ class ExcelFile:
 
     def get_value(self) -> dict:
         """
+        Функция для получения точечно необходимой информации из Excel - файла
         """
         self.workbook = openpyxl.load_workbook(self.filename)
         sheet_parameters = self.workbook['Параметры']
@@ -35,4 +36,7 @@ class ExcelFile:
         return data_dict
     
     def close_wb(self):
+        """
+        Функция для закрытия Excel - файла
+        """
         self.workbook.close()
