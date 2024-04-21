@@ -1,5 +1,6 @@
 import openpyxl
 
+
 class ExcelFile:
     """
     Класс для инкапсуляции взаимодействия с Excel-файлом
@@ -12,12 +13,12 @@ class ExcelFile:
         """
         Функция для получения точечно необходимой информации из Excel - файла
         """
-        self.workbook = openpyxl.load_workbook(self.filename)
+        self.workbook = openpyxl.load_workbook(self.filename, read_only=True)
         sheet_parameters = self.workbook['Параметры']
         sheet_invest = self.workbook['Расчет инвест. затрат']
         sheet_chart_dl = self.workbook['Расчет графика ЛП']
         sheet_recoverable_cost = self.workbook['Возмещаемые затраты']
-        data_dict: dict
+        data_dict = dict()
         data_dict['ИТОГО проценты за финансирование за период поставки'] = sheet_invest['D31'].value
         data_dict['Размер аванса'] = sheet_invest['B6'].value
         data_dict['Дата аванса'] = sheet_invest['C6'].value
@@ -25,9 +26,13 @@ class ExcelFile:
         ## TODO: возмещаемые затраты находятся по слову "Итого"
         # data_dict['Возмещаемые затраты'] = sheet_recoverable_cost['C8'].value
 
-
         ## TODO: цикл, который проходит по листу и суммирует до None
-        data_dict['Стоимость ДЛ'] = sheet_chart_dl
+        total = 0
+        for row in sheet_chart_dl.iter_rows(min_row=3):
+            cell = row[13]
+            if cell.value is not None:
+                total += cell.value
+        data_dict['Стоимость ДЛ'] = -total
 
         ## TODO: находить по тегу на отсрочку ДЛ
         data_dict['Отсрочка ДЛ'] = sheet_parameters['C35'].value
@@ -40,3 +45,8 @@ class ExcelFile:
         Функция для закрытия Excel - файла
         """
         self.workbook.close()
+
+ssss = ExcelFile('по факту 302425785.xlsx')
+l = ssss.get_value()
+print(l)
+ssss.close_wb()
