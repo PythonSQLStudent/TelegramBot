@@ -1,4 +1,5 @@
 import openpyxl
+import pandas as pd
 import datetime as dt
 
 
@@ -81,10 +82,10 @@ class ExcelFile:
         # получаем сумму субсидии
         total_subs = 0
         for row in sheet_chart_dl.iter_rows(min_row=3):
-            cell = row[13]
+            cell = row[14]
             if cell.value is not None:
                 total_subs += cell.value
-        data_dict['Сумма субсидии за лизинг'] = total_subs
+        data_dict['Сумма субсидии за лизинг'] = -total_subs
 
         # получаем данные с листа параметров: Итого_ДКП_С_НДС, Отсрочка ДЛ, Срок ДЛ в мес
         for row in sheet_parameters.iter_rows():
@@ -112,3 +113,5 @@ ssss = ExcelFile(filename)
 l = ssss.get_value()
 print(l)
 ssss.close_wb()
+df = pd.DataFrame.from_dict(l, orient="index")
+df.to_excel("data.xlsx")
