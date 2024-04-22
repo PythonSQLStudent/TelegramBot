@@ -15,7 +15,7 @@ class ExcelFile:
         """
         Функция для получения точечно необходимой информации из Excel - файла
         """
-        self.workbook = openpyxl.load_workbook(self.filename, data_only=False)
+        self.workbook = openpyxl.load_workbook(self.filename, data_only=True)
 
         sheet_parameters = self.workbook['Параметры']
         sheet_invest = self.workbook['Расчет инвест. затрат']
@@ -34,11 +34,11 @@ class ExcelFile:
 
         ## даты оплаты оплаты поставщику, размер оплаты поставщику, проценты за финансирование
         for row in sheet_invest.iter_rows(min_row=9, max_row=14):
-            cell = row[3]
+            cell = row[1]
             if cell.value is not None and cell.value != 0:
-                data_dict[sheet_invest.cell(row = cell.row, column=cell.column - 3).value + ' сумма'] = sheet_invest.cell(row = cell.row, column=cell.column - 2).value
-                data_dict[sheet_invest.cell(row = cell.row, column=cell.column - 3).value + ' дата'] = sheet_invest.cell(row = cell.row, column=cell.column - 1).value
-                data_dict[sheet_invest.cell(row = cell.row, column=cell.column - 3).value + ' проценты'] = sheet_invest.cell(row = cell.row, column=cell.column).value
+                data_dict[sheet_invest.cell(row = cell.row, column=cell.column - 1).value + ' сумма'] = cell.value
+                data_dict[sheet_invest.cell(row = cell.row, column=cell.column - 1).value + ' дата'] = sheet_invest.cell(row = cell.row, column=cell.column + 1).value
+                data_dict[sheet_invest.cell(row = cell.row, column=cell.column - 1).value + ' проценты'] = sheet_invest.cell(row = cell.row, column=cell.column + 2).value
 
         # получаем размер аванс
         data_dict['Размер аванса'] = sheet_invest['B6'].value
@@ -107,11 +107,29 @@ class ExcelFile:
         self.workbook.close()
 
 
-filename = 'по факту 302425785.xlsx'
+filename_1 = 'по факту 302425785.xlsx'
+filename_2 = 'предварительный 302425787.xlsx'
 # abs_filename = os.path.abspath(filename)
-ssss = ExcelFile(filename)
-l = ssss.get_value()
-print(l)
-ssss.close_wb()
-df = pd.DataFrame.from_dict(l, orient="index")
-df.to_excel("data.xlsx")
+first_class = ExcelFile(filename_1)
+dict1 = first_class.get_value()
+print(dict1)
+first_class.close_wb()
+
+sc_class = ExcelFile(filename_2)
+dict2 = sc_class.get_value()
+print(dict2)
+sc_class.close_wb()
+
+# dicts = [l, s]
+df1 = pd.DataFrame.from_dict(dict1, orient='index')
+df2 = pd.DataFrame.from_dict(dict2, orient='index')
+# keys = []
+# for i in dict1.keys():
+#     keys.append(i)
+# print(keys)
+# df = pd.DataFrame(dict1, index=dict1.keys()).join(pd.DataFrame(dict2, index=dict1.keys()))
+# df = pd.merge(df1, df2, on=keys, suffixes=['_df1', '_df2'])
+# df = pd.concat([pd.DataFrame.from_dict(d, orient='index') for d in dicts], ignore_index=True)
+df = pd.concat([df1, df2], axis=1)
+# print(df)
+df.to_excel("data.xlsx", index='False')
