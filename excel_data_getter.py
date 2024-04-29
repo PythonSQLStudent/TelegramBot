@@ -1,6 +1,7 @@
 import openpyxl
 import pandas as pd
 import datetime as dt
+from datetime import timedelta
 
 
 def get_value(filename) -> dict:
@@ -29,20 +30,20 @@ def get_value(filename) -> dict:
         cell = row[1]
         if cell.value is not None and cell.value != 0:
             data_dict[sheet_invest.cell(row = cell.row, column=cell.column - 1).value + ' сумма'] = cell.value
-            data_dict[sheet_invest.cell(row = cell.row, column=cell.column - 1).value + ' дата'] = sheet_invest.cell(row = cell.row, column=cell.column + 1).value
+            data_dict[sheet_invest.cell(row = cell.row, column=cell.column - 1).value + ' дата'] = sheet_invest.cell(row = cell.row, column=cell.column + 1).value.date()
             data_dict[sheet_invest.cell(row = cell.row, column=cell.column - 1).value + ' проценты'] = sheet_invest.cell(row = cell.row, column=cell.column + 2).value
 
     # получаем размер аванс
     data_dict['Размер аванса'] = sheet_invest['B6'].value
 
     # поучаем дату аванса
-    data_dict['Дата аванса'] = sheet_invest['C6'].value
+    data_dict['Дата аванса'] = sheet_invest['C6'].value.date()
 
     # получаем дату передачи
-    data_dict['Дата передачи'] = sheet_invest['C3'].value
+    data_dict['Дата передачи'] = sheet_invest['C3'].value.date()
 
     # получаем дату первого периода
-    data_dict['Дата первого периода'] = sheet_chart_dl['B5'].value
+    data_dict['Дата первого периода'] = sheet_chart_dl['B5'].value.date()
 
     # получаем проценты первого периода
     data_dict['Проценты первого периода'] = sheet_chart_dl['M5'].value
@@ -91,7 +92,6 @@ def get_value(filename) -> dict:
     
     workbook.close()
 
-
     return data_dict
     
 def answer(filename1, filename2=None):
@@ -113,7 +113,25 @@ def answer(filename1, filename2=None):
 
         # TODO: описать проценты за финансирование
         if dict2['Итого проценты за финансирование'] != dict1['Итого проценты за финансирование']:
-            answer += 'Проценты за финансирование\n\n'
+            for key in dict1:
+                if key.endswith("дата"):
+                    key_date = key
+            date_diff = abs((dict1['Дата передачи'] - dict1[key_date]).days)
+            answer += f'Проценты за финансирование\n\nВ предварительном расчете\n' \
+                    f'Дата оплаты поставщику: {dict1.get(key_date)}\n'\
+                    f'Дата передачи ПЛ: {dict1.get("Дата передачи")}\n' \
+                    f'Разница между датой оплаты поставщику и датой передачи составляет: ' \
+                    f'{date_diff} дней - начислено {dict1.get("Итого проценты за финансирование")} руб.\n\n'
+            
+            for key in dict2:
+                if key.endswith("дата"):
+                    key_date = key
+            date_diff = abs((dict2['Дата передачи'] - dict2[key_date]).days)
+            answer += f'В расчете по факту\n' \
+                    f'Дата оплаты поставщику: {dict2.get(key_date)}\n'\
+                    f'Дата передачи ПЛ: {dict2.get("Дата передачи")}\n' \
+                    f'Разница между датой оплаты поставщику и датой передачи составляет: ' \
+                    f'{date_diff} дней - начислено {dict2.get("Итого проценты за финансирование")} руб.\n\n'
         
         # TODO: описать изменение возмещаемых затрат
         if dict2['Возмещаемые затраты'] != dict1['Возмещаемые затраты']:
@@ -131,7 +149,7 @@ def answer(filename1, filename2=None):
 
 filename_1 = 'по факту 302425785.xlsx'
 filename_2 = 'предварительный 302425787.xlsx'
-print(answer(filename_2, filename_1))
+print(answer(filename1=filename_2, filename2=filename_1))
 
 # first_class = ExcelFile(filename_1)
 # dict1 = first_class.get_value()
