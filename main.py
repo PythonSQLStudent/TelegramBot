@@ -32,18 +32,18 @@ def weather(message):
 
 # Отвечающий бот
 
-# @bot.message_handler(content_types='text')
-# def main(message):
-#     """
-#     Функция для работы с текстом
-#     """
-#     global name_DL
-#     text_user = message.text.strip().lower()
+@bot.message_handler(content_types='text')
+def main(message):
+    """
+    Функция для работы с текстом
+    """
+    global name_DL
+    text_user = message.text.strip().lower()
 
-#     if text_user in no_word:
-#         bot.send_message(message.chat.id, 'Программиста ответ')
-#     elif text_user in yes_word:
-#         bot.reply_to(message, random.choice(non_swear_yes))
+    if text_user in no_word:
+        bot.send_message(message.chat.id, 'Программиста ответ')
+    elif text_user in yes_word:
+        bot.reply_to(message, random.choice(non_swear_yes))
     # elif 'дл' in text_user:
     #     name_DL = text_user.replace('дл', '')
     #     name_DL = name_DL.replace(' ', '')
