@@ -94,7 +94,7 @@ def get_value(filename) -> dict:
 
     return data_dict
     
-def answer(filename1, filename2=None):
+def answer(filename1, filename2=None, flag = None):
     """
     Функция обработчик запроса из телеграм бота
     filename1: имя Excel - файла с значениями, если входит 1 в функцию - используется для разбора удорожания
@@ -104,10 +104,18 @@ def answer(filename1, filename2=None):
     answer = 'Коллеги, добрый день,\n\nПо результатам рассмотрения инцидента могу сообщить следующее:\n\n'
     dict1 = get_value(filename1)
 
-    # TODO: сделать для одного файла
-    if filename2 is None:
-        pass
-    else:
+    # TODO: Сделать для суммы закрытия
+    if flag == 1:
+        sum_dl = round(dict1['Сумма ДЛ'], 2)
+        itogo = round(dict1['ИТОГО_ДКП_С_НДС'], 2)
+        srok_dl = dict1['Срок ДЛ']
+        ydor = round((sum_dl / itogo - 1) / (srok_dl / 12) * 100, 2)
+        answer += f'Сумма ДЛ составляет: {sum_dl}, ИТОГО_ДКП_С_НДС равняется: {itogo}, Срок ДЛ в месяцах равен: {srok_dl}. ' \
+                    'В таком случае, по формуле: Удорожание в год = (Сумма ДЛ / Итого_ДКП_с_НДС - 1) / Срок ДЛ в годах. \n' \
+                    f'{ydor}% = ({sum_dl} / {itogo} - 1) / ({srok_dl} / 12)'
+    elif flag == 2:    
+        # TODO: сделать для изменения ставки маржи, субсидии и награждния
+        # TODO: переделать предыдущую функцию полностью на пандас
         dict2 = get_value(filename2)
         answer += f'Разница в сумме ДЛ составила {round(dict2['Сумма ДЛ'] - dict1['Сумма ДЛ'])} руб. Из них:\n\n'
 
@@ -165,13 +173,15 @@ def answer(filename1, filename2=None):
                     f'{dict1.get("Дата первого периода")} составляет {date_diff_1} дней.\nПроценты первого периода таким образом составляют '\
                     f'{dict1.get('Проценты первого периода')} руб\n'\
                     f'В расчете по факту разница между датой передачи {dict2.get('Дата передачи')} и датой первого периода {dict2.get("Дата первого периода")}'\
-                    f' составляет {date_diff_2} дней.\nПроценты первого периода таким образом составляют {dict2.get('Проценты первого периода')} руб.\n'\
+                    f' составляет {date_diff_2} дней.\nПроценты первого периода таким образом составляют {dict2.get('Проценты первого периода')} руб.\n'
+    elif flag == 3:
+        answer += 'хуй' 
     
     return answer
 
-filename_1 = 'по факту 302425785.xlsx'
-filename_2 = 'предварительный 302425787.xlsx'
-print(answer(filename1=filename_2, filename2=filename_1))
+# filename_1 = 'по факту 302425785.xlsx'
+# filename_2 = 'предварительный 302425787.xlsx'
+# print(answer(filename1=filename_2, filename2=filename_1))
 
 # first_class = ExcelFile(filename_1)
 # dict1 = first_class.get_value()
